@@ -1,0 +1,218 @@
+app-id: org.deepin.deepin-calculator
+branch: master
+runtime: org.kde.Platform
+runtime-version: '5.15'
+sdk: org.kde.Sdk
+command: startup.sh
+finish-args:
+  # qt.qpa.xcb: could not connect to display
+  - --socket=x11
+  - --env=QT_QPA_PLATFORM=xcb
+  - --env=DCONF_USER_CONFIG_DIR=.config/dconf
+modules:
+  - name: startup-notification
+    buildsystem: autotools
+    sources:
+      - type: git
+        url: https://github.com/freedesktop/startup-notification.git
+
+  - name: dtk-common
+    buildsystem: qmake
+    build-options:
+      env:
+        - INSTALL_ROOT=/app
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/* /app
+      - rm -rf /app/usr/lib
+      - cp -r /app/app/* /app
+      - rm -rf /app/app
+      - sed -i 's#usr/lib/x86_64-linux-gnu#app/lib#' /app/lib/mkspecs/modules/qt_lib_dtkcommon.pri
+    sources:
+      - type: git
+        url: https://github.com/linuxdeepin/dtkcommon.git
+
+  - name: gsettings-qt
+    buildsystem: qmake
+    build-options:
+      env:
+        - INSTALL_ROOT=/app
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/lib/x86_64-linux-gnu/* /app/lib
+      - rm -rf /app/usr/lib/x86_64-linux-gnu
+      - cp -r /app/usr/lib/qml /app/lib
+      - rm -rf /app/usr/lib/qml
+      - cp -r /app/usr/include/* /app/include
+      - rm -rf /app/usr/include
+      - sed -i 's#prefix=/usr#prefix=/app#' /app/lib/pkgconfig/gsettings-qt.pc
+      - sed -i 's#/lib/x86_64-linux-gnu#/lib#' /app/lib/pkgconfig/gsettings-qt.pc
+    sources:
+      - type: git
+        branch: xenial
+        url: https://github.com/ubports/gsettings-qt.git
+
+  - name: gtest
+    buildsystem: cmake
+    sources:
+      - type: git
+        tag: release-1.11.0
+        url: https://github.com/google/googletest.git
+
+  - name: dtk-core
+    buildsystem: qmake
+    build-options:
+      env:
+        - QMAKEPATH=/app/lib
+        - INSTALL_ROOT=/app
+    config-opts:
+      - QMAKE_LIBDIR=/app/lib
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/lib/mkspecs /app/lib
+      - rm -rf /app/usr/lib/mkspecs
+      - cp -r /app/app/* /app
+      - rm -rf /app/app
+    sources:
+      - type: git
+        url: https://github.com/linuxdeepin/dtkcore.git
+
+  - name: dtk-gui
+    buildsystem: qmake
+    build-options:
+      env:
+        - QMAKEPATH=/app/lib
+        - INSTALL_ROOT=/app
+    config-opts:
+      - QMAKE_LIBDIR=/app/lib
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/lib/mkspecs /app/lib
+      - rm -rf /app/usr/lib/mkspecs
+      - cp -r /app/app/* /app
+      - rm -rf /app/app
+    sources:
+      - type: git
+        # tag: 5.5.21
+        url: https://github.com/linuxdeepin/dtkgui.git
+
+  - name: dtk-widget
+    buildsystem: qmake
+    build-options:
+      env:
+        - QMAKEPATH=/app/lib
+        - INSTALL_ROOT=/app
+    config-opts:
+      - QMAKE_INCDIR=/app/include/QGSettings
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/lib/mkspecs /app/lib
+      - rm -rf /app/usr/lib/mkspecs
+      - cp -r /app/app/* /app
+      - rm -rf /app/app
+    sources:
+      - type: git
+        url: https://github.com/linuxdeepin/dtkwidget.git
+
+  - name: qtdbusextended-qt5
+    buildsystem: qmake
+    build-options:
+      env:
+        - QMAKEPATH=/app/lib
+        - INSTALL_ROOT=/app
+    #     config-opts:
+    #       - QMAKE_INCDIR=/app/include/QGSettings
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/app/lib /app
+      - rm -rf /app/app
+      - cp -r /app/usr/include /app
+      - rm -rf /app/usr/include
+      - cp -r /app/usr/lib/x86_64-linux-gnu/* /app/lib
+      - rm -rf /app/usr/lib/x86_64-linux-gnu
+      - sed -i 's#prefix=/usr#prefix=/app#' /app/lib/pkgconfig/dbusextended-qt5.pc
+      - sed -i 's#/lib/x86_64-linux-gnu#/lib#' /app/lib/pkgconfig/dbusextended-qt5.pc
+    sources:
+      - type: git
+        url: https://github.com/nemomobile/qtdbusextended.git
+
+  - name: library
+    buildsystem: simple
+    build-commands:
+      - for file in *.deb; do ar p $file data.tar.xz | tar -xJ; done;
+    post-install:
+      #      - rm -rf usr/share/{doc,man}
+      - cp -dr usr/* $FLATPAK_DEST/
+      #      - cp -dr lib/* $FLATPAK_DEST/lib
+      - cp -r /app/lib/x86_64-linux-gnu/* /app/lib
+      - rm -rf /app/lib/x86_64-linux-gnu
+      #      - cp -r /app/include/x86_64-linux-gnu/* /app/include
+      #      - rm -rf /app/include/x86_64-linux-gnu
+      - cd /app/lib/pkgconfig && sed -i 's#/usr#/app#' *.pc
+      - cd /app/lib/pkgconfig && sed -i 's#/x86_64-linux-gnu##' *.pc
+    sources:
+      # theme
+      - type: file
+        url: http://ftp.cn.debian.org/debian/pool/main/libq/libqtxdg/libqt5xdg3_3.6.0-1_amd64.deb
+        sha256: b02e66287eb14bd37a3d4e7909ad4c805068a527b0bba60904201c722a967d20
+      # theme
+      - type: file
+        url: http://ftp.cn.debian.org/debian/pool/main/libq/libqtxdg/libqt5xdgiconloader3_3.6.0-1_amd64.deb
+        sha256: 75c01b8564e46b6e74fcef6044125a7357655876987776841fb4c2715d728fd7
+      # theme
+      - type: file
+        url: http://ftp.cn.debian.org/debian/pool/main/d/deepin-qt5dxcb-plugin/qt5dxcb-plugin_5.0.17-1_amd64.deb
+        sha256: af0e512f1257da0e9cc6072f2b4807f6554e383b9acadedc403a1686417303c1
+      # theme
+      - type: file
+        url: http://ftp.cn.debian.org/debian/pool/main/d/dde-qt5integration/dde-qt5integration_5.1.0.5-1_amd64.deb
+        sha256: 0890aec8cc22ebd2dc9203eb301675ebcb78d71367f0e7c5c8044718219682fb
+
+  - name: dframeworkdbus
+    buildsystem: qmake
+    build-options:
+      env:
+        - QMAKEPATH=/app/lib
+        - INSTALL_ROOT=/app
+    post-install:
+      - mkdir -p /app/lib /app/include
+      - cp -r /app/usr/include/* /app/include
+      - rm -rf /app/usr/include
+      - cp -r /app/usr/lib/* /app/lib
+      - rm -rf /app/usr/lib
+    sources:
+      - type: git
+        tag: 5.5.22
+        url: https://github.com/linuxdeepin/dde-qt-dbus-factory.git
+
+  - name: deepin-calculator
+    buildsystem: cmake-ninja
+    build-options:
+      env:
+        - INSTALL_ROOT=/app
+      prepend-pkg-config-path: /app/lib/pkgconfig
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - -DCMAKE_PREFIX_PATH=/app
+      - -DCMAKE_INSTALL_PREFIX=/app
+    sources:
+      - type: git
+        url: https://github.com/ggssh/deepin-calculator.git
+      - type: shell
+        commands:
+          #          - ls -a /app/include
+          #          - ls -a /app/lib
+          - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' tests/CMakeLists.txt src/CMakeLists.txt
+          #          - sed -i 's#/usr/include#/app/include#' src/music-player/CMakeLists.txt
+          - sed -i 's#-fPIE#-L/app/lib -fPIE#' tests/CMakeLists.txt src/CMakeLists.txt
+  #          - sed -i 's#/usr/share/#/app/share/#' src/music-player/CMakeLists.txt
+
+  - name: desktop
+    buildsystem: simple
+    sources:
+      - type: file
+        path: ./startup.sh
+    build-commands:
+      - mv /app/share/applications/deepin-calculator.desktop /app/share/applications/org.deepin.deepin-calculator.desktop
+      - mv /app/share/icons/hicolor/scalable/apps/deepin-calculator.svg /app/share/icons/hicolor/scalable/apps/org.deepin.deepin-calculator.svg
+      - install -Dm755 startup.sh /app/bin/startup.sh
