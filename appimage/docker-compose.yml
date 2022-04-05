@@ -1,0 +1,9 @@
+version: "3"
+services:
+  deepin-calculator:
+    image: ggssh/deepin-calculator:16
+    privileged: true
+    volumes:
+      - .:/workspace
+    entrypoint: ["/bin/bash","/workspace/build-appimage.sh"]
+    userns_mode: "host"

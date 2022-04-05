@@ -1,3 +1,4 @@
 /flatpak/.flatpak-builder/
 /flatpak/flatpak-test/
 .idea/
+/appimage/deepin-calculator/

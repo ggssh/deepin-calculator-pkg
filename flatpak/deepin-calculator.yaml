@@ -9,6 +9,12 @@ finish-args:
   - --socket=x11
   - --env=QT_QPA_PLATFORM=xcb
   - --env=DCONF_USER_CONFIG_DIR=.config/dconf
+  - --device=all
+  - --filesystem=home
+  - --socket=wayland
+  - --talk-name=com.deepin.*
+  - --talk-name=com.deepin.speech.*
+  - --talk-name=com.deepin.SingleInstance.*
 modules:
   - name: startup-notification
     buildsystem: autotools
@@ -141,7 +147,6 @@ modules:
     build-commands:
       - for file in *.deb; do ar p $file data.tar.xz | tar -xJ; done;
     post-install:
-      #      - rm -rf usr/share/{doc,man}
       - cp -dr usr/* $FLATPAK_DEST/
       #      - cp -dr lib/* $FLATPAK_DEST/lib
       - cp -r /app/lib/x86_64-linux-gnu/* /app/lib
@@ -197,14 +202,24 @@ modules:
       - -DCMAKE_INSTALL_PREFIX=/app
     sources:
       - type: git
+#        tag: 5.7.12
         url: https://github.com/ggssh/deepin-calculator.git
+      - type: file
+        path: ./main.cpp
+
       - type: shell
         commands:
           #          - ls -a /app/include
           #          - ls -a /app/lib
           - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' tests/CMakeLists.txt src/CMakeLists.txt
+#          - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' CMakeLists.txt tests/CMakeLists.txt
           #          - sed -i 's#/usr/include#/app/include#' src/music-player/CMakeLists.txt
           - sed -i 's#-fPIE#-L/app/lib -fPIE#' tests/CMakeLists.txt src/CMakeLists.txt
+          - rm src/main.cpp
+          - mv ./main.cpp src
+          - cat src/main.cpp
+#          - sed -i 's#-fPIE#-L/app/lib -fPIE#' CMakeLists.txt tests/CMakeLists.txt
+#          - cat tests/CMakeLists.txt
   #          - sed -i 's#/usr/share/#/app/share/#' src/music-player/CMakeLists.txt
 
   - name: desktop
