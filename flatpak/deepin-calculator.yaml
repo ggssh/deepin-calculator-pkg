@@ -198,29 +198,17 @@ modules:
       prepend-pkg-config-path: /app/lib/pkgconfig
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      - -DCMAKE_PREFIX_PATH=/app
-      - -DCMAKE_INSTALL_PREFIX=/app
     sources:
       - type: git
-#        tag: 5.7.12
-        url: https://github.com/ggssh/deepin-calculator.git
-      - type: file
-        path: ./main.cpp
+        tag: 5.7.20
+        url: https://github.com/linuxdeepin/deepin-calculator.git
 
       - type: shell
         commands:
-          #          - ls -a /app/include
-          #          - ls -a /app/lib
-          - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' tests/CMakeLists.txt src/CMakeLists.txt
-#          - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' CMakeLists.txt tests/CMakeLists.txt
-          #          - sed -i 's#/usr/include#/app/include#' src/music-player/CMakeLists.txt
-          - sed -i 's#-fPIE#-L/app/lib -fPIE#' tests/CMakeLists.txt src/CMakeLists.txt
-          - rm src/main.cpp
-          - mv ./main.cpp src
-          - cat src/main.cpp
-#          - sed -i 's#-fPIE#-L/app/lib -fPIE#' CMakeLists.txt tests/CMakeLists.txt
-#          - cat tests/CMakeLists.txt
-  #          - sed -i 's#/usr/share/#/app/share/#' src/music-player/CMakeLists.txt
+          - sed -i 's#${DFrameworkDBus_INCLUDE_DIRS}#/app/include/libdframeworkdbus-2.0#' tests/CMakeLists.txt CMakeLists.txt
+          - sed -i 's#-fPIE#-L/app/lib -fPIE#' tests/CMakeLists.txt CMakeLists.txt
+          - sed -i 's#CMAKE_INSTALL_PREFIX /usr#CMAKE_INSTALL_PREFIX /app#' tests/CMakeLists.txt CMakeLists.txt
+          - sed -i 's#/usr/share/deepin-manual/manual-assets/application/#/app/share/deepin-manual/manual-assets/application/#' tests/CMakeLists.txt CMakeLists.txt
 
   - name: desktop
     buildsystem: simple
