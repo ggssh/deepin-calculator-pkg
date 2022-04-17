@@ -41,9 +41,6 @@ make install DESTDIR="$pkg_dir"
 #cmake --build "$build_dir" -j"$(nproc)"
 #cmake --build "$build_dir" --target install DESTDIR="$pkg_dir"
 
-#mkdir -p "$(pkg_dir)"/usr/{bin,lib,share/applications,share/icons}
-#mkdir -p "$(pkg_dir)"/usr/share/icons/hicolor/scalable/apps
-
 # desktop
 cp "$pkg_dir"/usr/share/applications/deepin-calculator.desktop "$pkg_dir"
 # icon
@@ -86,7 +83,7 @@ install_libs() {
 }
 
 mkdir -p "$pkg_dir"/usr/lib/
-install_libs libgsettings-qt
+install_libs libgsettings-qt libstartup-notification
 
 #cp -dr /opt/Qt/5.15.2/gcc_64/plugins "$(pkg_dir)"/usr
 
