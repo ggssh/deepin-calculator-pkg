@@ -16,19 +16,23 @@ pkg_dir=$src_dir/AppDir        # 存放打包产物
 rm -rf "$pkg_dir"
 
 export LD_LIBRARY_PATH=/opt/Qt/5.15.2/gcc_64/lib:$LD_LIBRARY_PATH
-#export DESTDIR=$(pkg_dir)
 
 # download project
 if [ ! -d "$src_dir" ]; then
-  git clone https://hub.fastgit.xyz/linuxdeepin/deepin-calculator.git
+  git clone -b 5.7.20 https://gitee.com/linuxdeepin/deepin-calculator.git
 fi
 cd "$src_dir"
 
 # build project && make install to AppDir
-sed -i 's#-fPIE#-L/usr/lib/x86_64-linux-gnu -L/opt/Qt/5.15.2/gcc_64/lib -I/opt/Qt/5.15.2/gcc_64/include -fPIE#' tests/CMakeLists.txt src/CMakeLists.txt
+sed -i 's#-fPIE#-L/usr/lib/x86_64-linux-gnu -L/opt/Qt/5.15.2/gcc_64/lib -I/opt/Qt/5.15.2/gcc_64/include -fPIC#' tests/CMakeLists.txt CMakeLists.txt
+sed -i 's#set(CMAKE_EXE_LINKER_FLAGS "-pie")##' tests/CMakeLists.txt CMakeLists.txt
 export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/opt/Qt/5.15.2/gcc_64/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-#mkdir "$build_dir"
+if [ -d "$build_dir" ]; then
+    rm -r "$build_dir"
+fi
+
+mkdir "$build_dir"
 cd "$build_dir"
 cmake ..
 make -j"$(nproc)"
@@ -41,9 +45,9 @@ make install DESTDIR="$pkg_dir"
 #mkdir -p "$(pkg_dir)"/usr/share/icons/hicolor/scalable/apps
 
 # desktop
-cp "$pkg_dir"/usr/local/share/applications/deepin-calculator.desktop "$pkg_dir"
+cp "$pkg_dir"/usr/share/applications/deepin-calculator.desktop "$pkg_dir"
 # icon
-cp "$pkg_dir"/usr/local/share/icons/hicolor/scalable/apps/deepin-calculator.svg "$pkg_dir"
+cp "$pkg_dir"/usr/share/icons/hicolor/scalable/apps/deepin-calculator.svg "$pkg_dir"
 
 cat >"$pkg_dir/AppRun" <<-'EOF'
 #!/bin/bash
@@ -53,7 +57,7 @@ if [[ -f ~/debug.sh ]];then
   ~/debug.sh
 fi
 export QT_PLUGIN_PATH=$APPDIR/usr/lib/qt5/plugins
-exec $APPDIR/usr/local/bin/deepin-calculator -platformtheme deepin -style chameleon
+exec $APPDIR/usr/bin/deepin-calculator -platformtheme deepin -style chameleon
 EOF
 chmod +x "$pkg_dir/AppRun"
 

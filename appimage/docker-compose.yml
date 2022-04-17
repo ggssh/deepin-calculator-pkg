@@ -1,7 +1,7 @@
 version: "3"
 services:
   deepin-calculator:
-    image: ggssh/deepin-calculator:16
+    image: ggssh/deepin-calculator-pkg:16
     privileged: true
     volumes:
       - .:/workspace
