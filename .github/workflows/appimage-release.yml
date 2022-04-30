@@ -12,6 +12,8 @@ jobs:
       - name: build appimage
         run: |
           export ACTION_MODE=true
+          export DOCKER_UID=$UID
+          export DOCKER_GID=$GID
           cd appimage
           docker-compose up
       - uses: actions/upload-artifact@v3
