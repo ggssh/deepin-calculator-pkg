@@ -10,7 +10,7 @@ jobs:
       - name: build appimage
         run: |
           pwd
-          ls -al ../
+          ls -al
           cd appimage
           docker-compose up
       - uses: actions/upload-artifact@v3
