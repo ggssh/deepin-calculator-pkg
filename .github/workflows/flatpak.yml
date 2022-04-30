@@ -1,0 +1,22 @@
+name: flatpak
+on:
+  push:
+    branches: [main]
+jobs:
+  flatpak:
+    name: "Flatpak"
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [x86_64]
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:kde-5.15
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v4
+        with:
+          bundle: deepin-calculator.flatpak
+          manifest-path: flatpak/deepin-calculator.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+          arch: ${{ matrix.arch }}
