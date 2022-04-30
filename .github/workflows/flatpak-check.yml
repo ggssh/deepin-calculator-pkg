@@ -1,4 +1,4 @@
-name: flatpak
+name: flatpak-check
 on:
   push:
     branches: [main]
