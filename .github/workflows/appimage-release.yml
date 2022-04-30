@@ -11,6 +11,7 @@ jobs:
 
       - name: build appimage
         run: |
+          export ACTION_MODE=true
           cd appimage
           docker-compose up
       - uses: actions/upload-artifact@v3
