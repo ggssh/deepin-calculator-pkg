@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - uses: actions/checkout@v2
+
       - name: build appimage
         run: |
-          pwd
-          ls -al
           cd appimage
           docker-compose up
       - uses: actions/upload-artifact@v3
