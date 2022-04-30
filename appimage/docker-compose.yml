@@ -3,6 +3,8 @@ services:
   deepin-calculator:
     image: ggssh/deepin-calculator-pkg:16
     privileged: true
+    environment:
+      - ACTION_MODE=${ACTION_MODE:-false}
     volumes:
       - .:/workspace
     entrypoint: ["/bin/bash","/workspace/build-appimage.sh"]
