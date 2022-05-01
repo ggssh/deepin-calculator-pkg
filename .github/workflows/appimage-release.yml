@@ -1,7 +1,8 @@
 name: appimage-release
 on:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*'
 jobs:
   appimage:
     runs-on: ubuntu-20.04
@@ -14,12 +15,15 @@ jobs:
           export ACTION_MODE=true
           cd appimage
           docker-compose up
-      - uses: actions/upload-artifact@v3
+
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
         with:
           name: deepin-calculator.AppImage
           path: ./appimage/deepin-calculator/build/deepin-calculator.AppImage
-      - uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v')
+
+      - name: create release
+        uses: ncipollo/release-action@v1
         with:
-          artifacts: "appimage-release/deepin-calculator.AppImage"
+          artifacts: "./appimage/deepin-calculator/build/deepin-calculator.AppImage"
           token: ${{ secrets.GITHUB_TOKEN }}
