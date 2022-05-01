@@ -19,7 +19,7 @@ jobs:
           name: deepin-calculator.AppImage
           path: ./appimage/deepin-calculator/build/deepin-calculator.AppImage
       - uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           artifacts: "appimage-release/deepin-calculator.AppImage"
           token: ${{ secrets.GITHUB_TOKEN }}
